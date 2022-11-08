@@ -22,9 +22,9 @@ BeatDetect beat;
 BeatListener bl;
 Arduino arduino;
 
-int ledPin =  12;    // LED connected to digital pin 12
-int ledPin2 =  8;    // LED connected to digital pin 1
-int ledPin3 =  2;    // LED connected to digital pin 0
+int ledPin =  13;    // LED connected to digital pin 12
+int ledPin2 =  9;    // LED connected to digital pin 1
+int ledPin3 =  8;    // LED connected to digital pin 0
 
 float kickSize, snareSize, hatSize;
 
@@ -32,7 +32,7 @@ void setup() {
   size(512, 200, P3D);
   
   minim = new Minim(this);
-  arduino = new Arduino(this, Arduino.list()[1], 57600);
+  arduino = new Arduino(this, Arduino.list()[0], 57600);
   
   song = minim.loadFile("freebird.mp3", 2048);
   song.play();
@@ -46,7 +46,7 @@ void setup() {
   // algorithm if it is giving too many false-positives. The default value is 10, 
   // which is essentially no damping. If you try to set the sensitivity to a negative value, 
   // an error will be reported and it will be set to 10 instead. 
-  beat.setSensitivity(100);  
+  beat.setSensitivity(300);  
   kickSize = snareSize = hatSize = 16;
   // make a new beat listener, so that we won't miss any buffers for the analysis
   bl = new BeatListener(beat, song);  
@@ -58,12 +58,16 @@ void setup() {
   arduino.pinMode(ledPin3, Arduino.OUTPUT);  
 }
 
+int counter=0;
 void draw() {
+  
+  counter++;
   background(0);
   fill(255);
   if(beat.isKick()) {
       arduino.digitalWrite(ledPin, Arduino.HIGH);   // set the LED on
       kickSize = 32;
+      println("kick");
   }
   if(beat.isSnare()) {
       arduino.digitalWrite(ledPin2, Arduino.HIGH);   // set the LED on
@@ -73,9 +77,14 @@ void draw() {
       arduino.digitalWrite(ledPin3, Arduino.HIGH);   // set the LED on
       hatSize = 32;
   }
+
+  if(counter>=0){
+  counter=0;
+  println("ahoj");
   arduino.digitalWrite(ledPin, Arduino.LOW);    // set the LED off
   arduino.digitalWrite(ledPin2, Arduino.LOW);    // set the LED off
-  arduino.digitalWrite(ledPin3, Arduino.LOW);    // set the LED off
+  arduino.digitalWrite(ledPin3, Arduino.LOW);
+  }    // set the LED off
   textSize(kickSize);
   text("KICK", width/4, height/2);
   textSize(snareSize);
